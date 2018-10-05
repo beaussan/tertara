@@ -1,0 +1,9 @@
+version: '2'
+services:
+  project-postgresql:
+    image: postgres:9.6.5
+    environment:
+    - POSTGRES_USER=psqluer
+    - POSTGRES_PASSWORD=psqlpassword
+    ports:
+    - 5432:5432
