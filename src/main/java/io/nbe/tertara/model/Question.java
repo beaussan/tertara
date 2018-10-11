@@ -7,7 +7,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "questions")
-public class Question {
+public class Question extends AuditModel {
 
     @Id
     @GeneratedValue(generator = "question_generator")
