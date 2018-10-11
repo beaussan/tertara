@@ -32,15 +32,12 @@ jobs:
 
       - store_artifacts:
           path: /tmp/standalone-app.jar
-      - store_artifacts:
-          path: /tmp/cf-dev-manifest.yml
 
       - persist_to_workspace:
           root: /tmp
           paths:
             - standalone-app.jar
             - setup-heroku.sh
-            - cf-dev-manifest.yml
 
   deploy-heroku:
     docker:
