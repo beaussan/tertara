@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: ${JDBC_DATABASE_URL:jdbc:postgresql://localhost:5432/psqluer}
+    username: psqluer
+    password: psqlpassword
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          non_contextual_creation: true
+    hibernate:
+      ddl-auto: update
+
+server:
+  port: ${PORT:8080}
