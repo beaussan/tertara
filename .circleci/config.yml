@@ -23,6 +23,10 @@ jobs:
           command: |
             mvn package -B  #run your tests
       - run:
+          name: Repport to Codecov
+          command: |
+            bash <(curl -s https://codecov.io/bash)
+      - run:
           name: Copy deployment artifacts to workspace
           command: |
             cp target/tertara-*.jar /tmp/standalone-app.jar
