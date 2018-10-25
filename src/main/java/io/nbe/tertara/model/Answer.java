@@ -2,6 +2,8 @@ package io.nbe.tertara.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.*;
+
+import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -9,6 +11,13 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "answers")
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Answer extends AuditModel {
     @Id
     @GeneratedValue(generator = "answer_generator")
@@ -28,43 +37,4 @@ public class Answer extends AuditModel {
     @JsonIgnore
     private Question question;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public Question getQuestion() {
-        return question;
-    }
-
-    public void setQuestion(Question question) {
-        this.question = question;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        Answer answer = (Answer) o;
-        return Objects.equals(id, answer.id) &&
-                Objects.equals(text, answer.text) &&
-                Objects.equals(question, answer.question);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), id, text, question);
-    }
 }

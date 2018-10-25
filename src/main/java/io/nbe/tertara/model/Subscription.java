@@ -1,14 +1,15 @@
 package io.nbe.tertara.model;
 
+
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
-import java.util.Objects;
 
 @Entity
-@Table(name = "questions")
+@Table(name = "subscription")
 @Getter
 @Setter
 @ToString
@@ -16,22 +17,24 @@ import java.util.Objects;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Question extends AuditModel {
+public class Subscription extends AuditModel {
 
     @Id
-    @GeneratedValue(generator = "question_generator")
+    @GeneratedValue(generator = "subscription_generator")
     @SequenceGenerator(
-            name = "question_generator",
-            sequenceName = "question_sequence",
+            name = "subscription_generator",
+            sequenceName = "subscription_sequence",
             initialValue = 1000
     )
     private Long id;
 
     @NotBlank
-    @Size(min = 3, max = 100)
-    private String title;
-
+    @Email
+    @Size(min = 1, max = 300)
     @Column(columnDefinition = "text")
-    private String description;
+    private String email;
+
+    private boolean newsletter;
+
 
 }

@@ -23,3 +23,18 @@ nvm spring-boot:run
 ```bash
 mvn package
 ```
+
+# For running test and sonar
+
+To start the sonar docker :
+
+```bash
+docker-compose -f src/main/docker/sonar.yml up -d
+```
+
+To run test and a sonar report :
+
+```bash
+mvn clean test sonar:sonar -Dsonar.host.url=http://localhost:9001  
+```
+

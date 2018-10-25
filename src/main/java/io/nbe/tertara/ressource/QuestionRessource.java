@@ -1,8 +1,11 @@
 package io.nbe.tertara.ressource;
 
+import io.nbe.tertara.exception.BadRequestBody;
 import io.nbe.tertara.exception.ResourceNotFoundException;
 import io.nbe.tertara.model.Question;
 import io.nbe.tertara.service.QuestionService;
+import javassist.tools.web.BadHttpRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,8 +29,17 @@ public class QuestionRessource {
 
 
     @PostMapping("/questions")
-    public Question createQuestion(@Valid @RequestBody Question question) {
-        return this.questionService.save(question);
+    public ResponseEntity<Question> createQuestion(@Valid @RequestBody Question question) {
+        if (question.getId() != null) {
+            throw new BadRequestBody("A new question cannot already have an ID");
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.questionService.save(question));
+    }
+
+    @GetMapping("/questions/{questionId}")
+    public Question getQuestion(@PathVariable Long questionId) {
+        return this.questionService.findOneById(questionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Question not found with id " + questionId));
     }
 
     @PutMapping("/questions/{questionId}")
