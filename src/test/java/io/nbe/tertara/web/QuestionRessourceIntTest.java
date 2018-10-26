@@ -35,10 +35,10 @@ import static org.hamcrest.Matchers.hasItem;
 public class QuestionRessourceIntTest {
 
     private static final String DEFAULT_TITLE = "AAAAAA";
-    private static final String UPDATED_TITLE = "AAAAAA";
+    private static final String UPDATED_TITLE = "BBBBBB";
 
     private static final String DEFAULT_DESCRIPTION = "AAAAAA";
-    private static final String UPDATED_DESCRIPTION = "AAAAAA";
+    private static final String UPDATED_DESCRIPTION = "BBBBBB";
 
 
     @Autowired
@@ -70,7 +70,7 @@ public class QuestionRessourceIntTest {
                 .setMessageConverters(jacksonMessageConverter).build();
     }
 
-    public static Question createEntity() {
+    public static Question createQuestion() {
         Question question = Question.builder()
                 .description(DEFAULT_DESCRIPTION)
                 .title(DEFAULT_TITLE)
@@ -80,13 +80,13 @@ public class QuestionRessourceIntTest {
 
     @Before
     public void initTests() {
-        question = createEntity();
+        question = createQuestion();
     }
 
 
     @Test
     @Transactional
-    public void createQuestion() throws Exception {
+    public void createQuestionRest() throws Exception {
         int databaseSizeBeforeCreate = questionRepository.findAll().size();
 
         // Create the Question

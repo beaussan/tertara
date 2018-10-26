@@ -32,7 +32,7 @@ public class AnswerService {
                 });
     }
 
-    public Optional<Answer> updateAnswer(Long questionId,Long answerId, Answer answerRequest) {
+    public Optional<Answer> updateAnswer(Long questionId, Long answerId, Answer answerRequest) {
         return answerRepository.findById(answerId)
                 .map(answer -> {
                     answer.setText(answerRequest.getText());
