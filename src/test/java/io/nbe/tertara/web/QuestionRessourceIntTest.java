@@ -19,6 +19,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 
 import java.util.List;
@@ -56,6 +57,9 @@ public class QuestionRessourceIntTest {
 
     private Question question;
 
+    @Autowired
+    private EntityManager em;
+
     @Before()
     public void setup() {
         MockitoAnnotations.initMocks(this);
@@ -92,10 +96,30 @@ public class QuestionRessourceIntTest {
                 .andExpect(status().isCreated());
 
         // Validate the Question in the database
-        List<Question> ranomDataList = questionRepository.findAll();
-        assertThat(ranomDataList).hasSize(databaseSizeBeforeCreate + 1);
-        Question testQuestion = ranomDataList.get(ranomDataList.size() - 1);
+        List<Question> questionList = questionRepository.findAll();
+        assertThat(questionList).hasSize(databaseSizeBeforeCreate + 1);
+        Question testQuestion = questionList.get(questionList.size() - 1);
         assertThat(testQuestion.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
+        assertThat(testQuestion.getTitle()).isEqualTo(DEFAULT_TITLE);
+    }
+    @Test
+    @Transactional
+    public void createQuestionWithoutDescription() throws Exception {
+        int databaseSizeBeforeCreate = questionRepository.findAll().size();
+
+        question.setDescription(null);
+
+        // Create the Question
+        restQuestionMockMvc.perform(post("/questions")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(question)))
+                .andExpect(status().isCreated());
+
+        // Validate the Question in the database
+        List<Question> questionList = questionRepository.findAll();
+        assertThat(questionList).hasSize(databaseSizeBeforeCreate + 1);
+        Question testQuestion = questionList.get(questionList.size() - 1);
+        assertThat(testQuestion.getDescription()).isEqualTo(null);
         assertThat(testQuestion.getTitle()).isEqualTo(DEFAULT_TITLE);
     }
 
@@ -133,8 +157,8 @@ public class QuestionRessourceIntTest {
                 .content(TestUtil.convertObjectToJsonBytes(question)))
                 .andExpect(status().isBadRequest());
 
-        List<Question> ranomDataList = questionRepository.findAll();
-        assertThat(ranomDataList).hasSize(databaseSizeBeforeTest);
+        List<Question> questionList = questionRepository.findAll();
+        assertThat(questionList).hasSize(databaseSizeBeforeTest);
     }
 
     @Test
@@ -150,8 +174,8 @@ public class QuestionRessourceIntTest {
                 .content(TestUtil.convertObjectToJsonBytes(question)))
                 .andExpect(status().isBadRequest());
 
-        List<Question> ranomDataList = questionRepository.findAll();
-        assertThat(ranomDataList).hasSize(databaseSizeBeforeTest);
+        List<Question> questionList = questionRepository.findAll();
+        assertThat(questionList).hasSize(databaseSizeBeforeTest);
     }
 
     @Test
@@ -167,8 +191,8 @@ public class QuestionRessourceIntTest {
                 .content(TestUtil.convertObjectToJsonBytes(question)))
                 .andExpect(status().isBadRequest());
 
-        List<Question> ranomDataList = questionRepository.findAll();
-        assertThat(ranomDataList).hasSize(databaseSizeBeforeTest);
+        List<Question> questionList = questionRepository.findAll();
+        assertThat(questionList).hasSize(databaseSizeBeforeTest);
     }
 
     @Test
@@ -209,5 +233,69 @@ public class QuestionRessourceIntTest {
                 .andExpect(status().isNotFound());
     }
 
+
+    @Test
+    @Transactional
+    public void updateQuestion() throws Exception {
+        // Initialize the database
+        questionService.save(question);
+
+        int databaseSizeBeforeUpdate = questionRepository.findAll().size();
+
+        // Update the question
+        Question updatedQuestion = questionRepository.findById(question.getId()).get();
+        // Disconnect from session so that the updates on updatedQuestion are not directly saved in db
+        em.detach(updatedQuestion);
+        updatedQuestion.setTitle(UPDATED_TITLE);
+        updatedQuestion.setDescription(UPDATED_DESCRIPTION);
+
+        restQuestionMockMvc.perform(put("/questions/{questionId}", question.getId())
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(updatedQuestion)))
+                .andExpect(status().isOk());
+
+        // Validate the Question in the database
+        List<Question> questionList = questionRepository.findAll();
+        assertThat(questionList).hasSize(databaseSizeBeforeUpdate);
+        Question testQuestion = questionList.get(questionList.size() - 1);
+        assertThat(testQuestion.getTitle()).isEqualTo(UPDATED_TITLE);
+        assertThat(testQuestion.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
+    }
+
+    @Test
+    @Transactional
+    public void updateNonExistingQuestion() throws Exception {
+        int databaseSizeBeforeUpdate = questionRepository.findAll().size();
+
+        // Create the Question
+
+        // If the entity doesn't have an ID, it will throw BadRequestAlertException
+        restQuestionMockMvc.perform(put("/questions/{questionId}", Long.MAX_VALUE)
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(question)))
+                .andExpect(status().isNotFound());
+
+        // Validate the Question in the database
+        List<Question> questionList = questionRepository.findAll();
+        assertThat(questionList).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    @Transactional
+    public void deleteQuestion() throws Exception {
+        // Initialize the database
+        questionService.save(question);
+
+        int databaseSizeBeforeDelete = questionRepository.findAll().size();
+
+        // Get the question
+        restQuestionMockMvc.perform(delete("/questions/{questionId}", question.getId())
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk());
+
+        // Validate the database is empty
+        List<Question> questionList = questionRepository.findAll();
+        assertThat(questionList).hasSize(databaseSizeBeforeDelete - 1);
+    }
 
 }

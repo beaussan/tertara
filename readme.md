@@ -1,6 +1,7 @@
 # Tertara
 
 [![CircleCI](https://circleci.com/gh/beaussart/tertara.svg?style=svg)](https://circleci.com/gh/beaussart/tertara)
+[![codecov](https://codecov.io/gh/beaussart/tertara/branch/master/graph/badge.svg)](https://codecov.io/gh/beaussart/tertara)
 
 # Instalation
 
