@@ -12,12 +12,12 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: tertara-{{ checksum "pom.xml" }}
+          key: tertara-{{ checksum "pom.xml" }}-2
       - run: mvn dependency:go-offline
       - save_cache:
           paths:
             - ~/.m2
-          key: tertara-{{ checksum "pom.xml" }}
+          key: tertara-{{ checksum "pom.xml" }}-2
       - run:
           name: Build and test
           command: |
