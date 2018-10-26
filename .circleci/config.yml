@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/openjdk:8-jdk-browsers
+      - image: circleci/openjdk:8-jdk-node-browsers-legacy
       - image: circleci/postgres:9.6.5
         environment:
           POSTGRES_DB: psqluer
@@ -45,7 +45,7 @@ jobs:
 
   deploy-heroku:
     docker:
-      - image: circleci/openjdk:8-jdk-browsers
+      - image: circleci/openjdk:8-jdk-node-browsers-legacy
     working_directory: ~/deploy
     steps:
       # why rebuild something we already tested, rebuilding invalidates any previous confidence?!
