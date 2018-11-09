@@ -11,13 +11,13 @@ jobs:
     working_directory: ~/repo
     steps:
       - checkout
-      - restore_cache:
-          key: tertara-{{ checksum "pom.xml" }}
+#      - restore_cache:
+#          key: tertara-{{ checksum "pom.xml" }}
       - run: mvn dependency:go-offline
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: tertara-{{ checksum "pom.xml" }}
+#      - save_cache:
+#          paths:
+#            - ~/.m2
+#          key: tertara-{{ checksum "pom.xml" }}
       - run:
           name: Build and test
           command: |
