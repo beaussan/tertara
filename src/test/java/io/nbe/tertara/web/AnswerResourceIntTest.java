@@ -122,11 +122,10 @@ public class AnswerResourceIntTest {
                 .content(TestUtil.convertObjectToJsonBytes(answer)))
                 .andExpect(status().isCreated());
 
-        List<Answer> questionList = answerRepository.findAll();
-        assertThat(questionList).hasSize(databaseSizeBeforeTest + 1);
-        Answer testAnswer = questionList.get(questionList.size() - 1);
+        List<Answer> answerList = answerRepository.findAll();
+        assertThat(answerList).hasSize(databaseSizeBeforeTest + 1);
+        Answer testAnswer = answerList.get(answerList.size() - 1);
         assertThat(testAnswer.getText()).isEqualTo(DEFAULT_TEXT);
-        assertThat(testAnswer.getQuestion()).isEqualTo(question);
     }
 
     @Test

@@ -15,16 +15,16 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: tertara-{{ checksum "pom.xml" }}
-      - run: mvn dependency:go-offline
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: tertara-{{ checksum "pom.xml" }}
+          keys:
+          - gradle-{{ checksum "build.gradle" }}
       - run:
-          name: Build and test
+          name: Test
           command: |
-            mvn package -B -X  #run your tests
+            gradle check #run your tests
+      - run:
+          name: Assemble
+          command: |
+            gradle assemble
       - run:
           name: Repport to Codecov
           command: |
@@ -32,8 +32,12 @@ jobs:
       - run:
           name: Copy deployment artifacts to workspace
           command: |
-            cp target/tertara-*.jar /tmp/standalone-app.jar
+            cp build/libs/tertara-*.jar /tmp/standalone-app.jar
             cp .circleci/setup-heroku.sh /tmp/setup-heroku.sh
+      - save_cache:
+         paths:
+         - ~/.gradle
+         key: gradle-{{ checksum "build.gradle" }}
       - store_test_results:
           path: target/surefire-reports
 
