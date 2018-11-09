@@ -31,7 +31,6 @@ public class Form extends AuditModel {
     private Long id;
 
     @OneToMany(fetch = FetchType.LAZY)
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<Question> questions;
 
     @ColumnDefault("FALSE")
