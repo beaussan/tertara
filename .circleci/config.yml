@@ -8,6 +8,9 @@ jobs:
           POSTGRES_DB: psqluer
           POSTGRES_USER: psqluer
           POSTGRES_PASSWORD: psqlpassword
+    environment:
+      JVM_OPTS: -Xmx3200m
+      TERM: dumb
     working_directory: ~/repo
     steps:
       - checkout
@@ -46,6 +49,9 @@ jobs:
   deploy-heroku:
     docker:
     - image: circleci/openjdk:8-jdk
+    environment:
+      JVM_OPTS: -Xmx3200m
+      TERM: dumb
     working_directory: ~/deploy
     steps:
       # why rebuild something we already tested, rebuilding invalidates any previous confidence?!
