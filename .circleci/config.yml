@@ -24,7 +24,7 @@ jobs:
       - run:
           name: Build and test
           command: |
-            mvn package -B -Dmaven.test.skip=true -X  #run your tests
+            mvn package -B -X  #run your tests
       - run:
           name: Repport to Codecov
           command: |
