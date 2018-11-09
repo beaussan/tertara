@@ -64,8 +64,6 @@ public class AnswerRessource {
         return this.answerService.deleteAnswer(questionId, answerId)
                 .map(question -> ResponseEntity.ok().build())
                 .orElseThrow(() -> new ResourceNotFoundException("Answer not found with id " + answerId));
-
-
     }
 
 }
