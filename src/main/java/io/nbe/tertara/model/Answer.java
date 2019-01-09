@@ -1,13 +1,11 @@
 package io.nbe.tertara.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import javax.persistence.*;
-
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import java.util.Objects;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "answers")
@@ -36,5 +34,9 @@ public class Answer extends AuditModel {
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
     private Question question;
+
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "answer_id", nullable = false)
+    private QuestionAnswerPossibility answerValue;
 
 }

@@ -1,6 +1,6 @@
 version: '2'
 services:
-  project-postgresql:
+  tertara-postgresql:
     image: postgres:9.6.5
     environment:
     - POSTGRES_USER=psqluer

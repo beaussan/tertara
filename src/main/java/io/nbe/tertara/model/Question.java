@@ -5,7 +5,7 @@ import lombok.*;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
-import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "questions")
@@ -33,5 +33,17 @@ public class Question extends AuditModel {
 
     @Column(columnDefinition = "text")
     private String description;
+
+    @Column()
+    private Integer position;
+
+    @OneToMany(fetch = FetchType.EAGER)
+    private Set<QuestionAnswerPossibility> answerPossibilities;
+
+    @Column()
+    private boolean ignoreResponse;
+
+    @Column()
+    private boolean terminated;
 
 }
