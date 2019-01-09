@@ -37,7 +37,6 @@ public class SubscriptionsResourcedIntTest {
     private static final String UPDATED_EMAIL = "tata@nbe.io";
 
     private static final Boolean DEFAULT_AGGREED = false;
-    private static final Boolean UPDATED_AGGREED = true;
 
     @Autowired
     private SubscriptionRepository subscriptionRepository;
@@ -160,6 +159,33 @@ public class SubscriptionsResourcedIntTest {
         // Validate the Question in the database
         List<Subscription> subsriptionTest = subscriptionRepository.findAll();
         assertThat(subsriptionTest).hasSize(databaseSizeBeforeCreate);
+    }
+
+    @Test
+    @Transactional
+    public void checkDuplicateEmail() throws Exception {
+        subscription.setEmail(UPDATED_EMAIL);
+        subscriptionRepository.saveAndFlush(subscription);
+        em.detach(subscription);
+        System.out.println(subscription);
+
+        int databaseSizeBeforeTest = subscriptionRepository.findAll().size();
+
+        subscription = Subscription.builder()
+                .email(UPDATED_EMAIL)
+                .newsletter(DEFAULT_AGGREED)
+                .build();
+        System.out.println(subscription);
+
+
+        // Create the subscription, which fails.
+        restsubscriptionMockMvc.perform(post("/subscription")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(subscription)))
+                .andExpect(status().isConflict());
+
+        List<Subscription> ranomDataList = subscriptionRepository.findAll();
+        assertThat(ranomDataList).hasSize(databaseSizeBeforeTest);
     }
 
 

@@ -23,4 +23,8 @@ public class SubscriptionService {
     public List<Subscription> findAll() {
         return this.subscriptionRepository.findAll();
     }
+
+    public boolean isEmailInDatabase(String email) {
+        return this.subscriptionRepository.findOneByEmail(email).isPresent();
+    }
 }
