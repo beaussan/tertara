@@ -16,7 +16,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-          - $CACHE_VERSION-gradle-{{ checksum "build.gradle" }}-{{
+          - $CACHE_VERSION-gradle-{{ checksum "build.gradle" }}
       - run:
           name: Test
           command: |
