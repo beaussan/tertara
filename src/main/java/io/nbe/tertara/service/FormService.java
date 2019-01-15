@@ -87,7 +87,7 @@ public class FormService {
                 .title("Donner le mot qui résume pour vous cette technologie.")
                 .answerPossibilities(new HashSet<>(Arrays.asList(one)))
                 .position(4)
-                .ignoreResponse(false)
+                .ignoreResponse(true)
                 .terminated(false)
                 .build());
     }
