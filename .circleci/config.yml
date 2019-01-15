@@ -20,11 +20,11 @@ jobs:
       - run:
           name: Test
           command: |
-            gradle check #run your tests
+            ./gradlew check #run your tests
       - run:
           name: Assemble
           command: |
-            gradle assemble
+            ./gradlew assemble
       - run:
           name: Repport to Codecov
           command: |
