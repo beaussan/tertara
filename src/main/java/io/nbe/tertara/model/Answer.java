@@ -26,9 +26,6 @@ public class Answer extends AuditModel {
     )
     private Long id;
 
-    @Column(columnDefinition = "text")
-    private String text;
-
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "question_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)

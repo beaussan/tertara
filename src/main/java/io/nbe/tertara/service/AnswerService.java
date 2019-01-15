@@ -1,7 +1,10 @@
 package io.nbe.tertara.service;
 
+import io.nbe.tertara.exception.BadRequestBody;
 import io.nbe.tertara.model.Answer;
+import io.nbe.tertara.model.QuestionAnswerPossibility;
 import io.nbe.tertara.repository.AnswerRepository;
+import io.nbe.tertara.repository.QuestionAnswerPossibilityRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,9 +17,12 @@ public class AnswerService {
 
     private QuestionService questionService;
 
-    public AnswerService(AnswerRepository answerRepository, QuestionService questionService) {
+    private QuestionAnswerPossibilityRepository questionAnswerPossibilityRepository;
+
+    public AnswerService(AnswerRepository answerRepository, QuestionService questionService, QuestionAnswerPossibilityRepository questionAnswerPossibilityRepository) {
         this.answerRepository = answerRepository;
         this.questionService = questionService;
+        this.questionAnswerPossibilityRepository = questionAnswerPossibilityRepository;
     }
 
 
@@ -24,27 +30,17 @@ public class AnswerService {
         return this.answerRepository.findByQuestionId(questionId);
     }
 
-    public Optional<Answer> addAnswer(Long questionId, Answer answer) {
+    public Optional<Answer> addAnswer(Long questionId, QuestionAnswerPossibility answer) {
         return this.questionService.findOneById(questionId)
-                .map(question -> {
-                    answer.setQuestion(question);
-                    return answerRepository.save(answer);
-                });
-    }
+                .flatMap(question -> {
+                    if (question.isTerminated()) {
+                        throw new BadRequestBody("You cannot add a answer to a terminated question");
+                    }
+                    if (!question.getAnswerPossibilities().contains(answer)) {
+                        return Optional.empty();
+                    }
 
-    public Optional<Answer> updateAnswer(Long questionId, Long answerId, Answer answerRequest) {
-        return answerRepository.findById(answerId)
-                .map(answer -> {
-                    answer.setText(answerRequest.getText());
-                    return answerRepository.save(answer);
-                });
-    }
-
-    public Optional<Answer> deleteAnswer(Long questionId, Long answerId) {
-        return answerRepository.findById(answerId)
-                .map(answer -> {
-                    answerRepository.delete(answer);
-                    return answer;
+                    return Optional.of(answerRepository.save(Answer.builder().answerValue(answer).question(question).build()));
                 });
     }
 

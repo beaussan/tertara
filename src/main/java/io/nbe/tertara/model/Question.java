@@ -28,7 +28,8 @@ public class Question extends AuditModel {
     private Long id;
 
     @NotBlank
-    @Size(min = 3, max = 100)
+    @Size(min = 3, max = 500)
+    @Column(columnDefinition = "text")
     private String title;
 
     @Column(columnDefinition = "text")

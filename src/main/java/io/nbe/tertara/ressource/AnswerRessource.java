@@ -2,6 +2,7 @@ package io.nbe.tertara.ressource;
 
 import io.nbe.tertara.exception.ResourceNotFoundException;
 import io.nbe.tertara.model.Answer;
+import io.nbe.tertara.model.QuestionAnswerPossibility;
 import io.nbe.tertara.service.AnswerService;
 import io.nbe.tertara.service.QuestionService;
 import javassist.NotFoundException;
@@ -35,35 +36,11 @@ public class AnswerRessource {
 
     @PostMapping("/questions/{questionId}/answers")
     public ResponseEntity<Answer> addAnswer(@PathVariable Long questionId,
-                            @Valid @RequestBody Answer answer) {
+                            @Valid @RequestBody QuestionAnswerPossibility answer) {
         return this.answerService.addAnswer(questionId, answer)
                 .map(answerMade -> ResponseEntity.status(HttpStatus.CREATED).body(answerMade))
                 .orElseThrow(() -> new ResourceNotFoundException("Question not found with id " + questionId));
     }
 
-
-    @PutMapping("/questions/{questionId}/answers/{answerId}")
-    public Answer updateAnswer(@PathVariable Long questionId,
-                               @PathVariable Long answerId,
-                               @Valid @RequestBody Answer answerRequest) {
-        if (!this.questionService.existsById(questionId)) {
-            throw new ResourceNotFoundException("Question not found with id " + questionId);
-        }
-        return this.answerService.updateAnswer(questionId, answerId, answerRequest)
-                .orElseThrow(() -> new ResourceNotFoundException("Answer not found with id " + answerId));
-
-    }
-
-    @DeleteMapping("/questions/{questionId}/answers/{answerId}")
-    public ResponseEntity<?> deleteAnswer(@PathVariable Long questionId,
-                                          @PathVariable Long answerId) {
-        if (!this.questionService.existsById(questionId)) {
-            throw new ResourceNotFoundException("Question not found with id " + questionId);
-        }
-
-        return this.answerService.deleteAnswer(questionId, answerId)
-                .map(question -> ResponseEntity.ok().build())
-                .orElseThrow(() -> new ResourceNotFoundException("Answer not found with id " + answerId));
-    }
 
 }
