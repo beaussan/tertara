@@ -15,18 +15,3 @@ spring:
 
 server:
   port: ${PORT:8090}
-
-management:
-  endpoint:
-    prometheus:
-      enabled: true
-    metrics:
-      enabled: true
-  endpoints:
-    web:
-      exposure:
-        include: '*'
-  metrics:
-    export:
-      prometheus:
-        enabled: true

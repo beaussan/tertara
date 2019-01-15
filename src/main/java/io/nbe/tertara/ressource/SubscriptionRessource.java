@@ -15,7 +15,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import javax.validation.Valid;
 import java.util.List;
 
-@RestController("subscription")
+@RestController
 public class SubscriptionRessource {
 
     private SubscriptionService subscriptionService;
@@ -25,12 +25,12 @@ public class SubscriptionRessource {
     }
 
 
-    @GetMapping
+    @GetMapping("/subscription")
     public List<Subscription> getAll() {
         return this.subscriptionService.findAll();
     }
 
-    @PostMapping
+    @PostMapping("/subscription")
     public ResponseEntity<Subscription> saveOne(@Valid @RequestBody Subscription subscription) {
         if (subscription.getId() != null) {
             throw new BadRequestBody("A new subscription cannot already have an ID");
