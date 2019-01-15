@@ -16,7 +16,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-          - gradle-{{ checksum "build.gradle" }}
+          - $CACHE_VERSION-gradle-{{ checksum "build.gradle" }}-{{
       - run:
           name: Test
           command: |
@@ -37,7 +37,7 @@ jobs:
       - save_cache:
          paths:
          - ~/.gradle
-         key: gradle-{{ checksum "build.gradle" }}
+         key: $CACHE_VERSION-gradle-{{ checksum "build.gradle" }}
       - store_test_results:
           path: target/surefire-reports
 
