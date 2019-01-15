@@ -32,7 +32,7 @@ import static org.hamcrest.Matchers.hasItem;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = TertaraApplication.class)
-public class QuestionRessourceIntTest {
+public class QuestionResourceIntTest {
 
     private static final String DEFAULT_TITLE = "AAAAAA";
 
@@ -102,7 +102,6 @@ public class QuestionRessourceIntTest {
         List<Question> questionList = questionRepository.findAll();
         assertThat(questionList).hasSize(databaseSizeBeforeUpdate);
         Question testQuestion = questionRepository.findById(updatedQuestion.getId()).get();
-        System.out.println(testQuestion);
         assertThat(testQuestion.isTerminated()).isEqualTo(true);
     }
 

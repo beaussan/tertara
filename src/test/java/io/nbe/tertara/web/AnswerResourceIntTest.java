@@ -3,7 +3,10 @@ package io.nbe.tertara.web;
 import io.nbe.tertara.TertaraApplication;
 import io.nbe.tertara.model.Answer;
 import io.nbe.tertara.model.Question;
+import io.nbe.tertara.model.QuestionAnswerPossibility;
 import io.nbe.tertara.repository.AnswerRepository;
+import io.nbe.tertara.repository.QuestionAnswerPossibilityRepository;
+import io.nbe.tertara.repository.QuestionRepository;
 import io.nbe.tertara.ressource.AnswerRessource;
 import io.nbe.tertara.service.AnswerService;
 import io.nbe.tertara.service.QuestionService;
@@ -23,6 +26,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import static io.nbe.tertara.web.TestUtil.createFormattingConversionService;
@@ -44,7 +49,13 @@ public class AnswerResourceIntTest {
     private AnswerRepository answerRepository;
 
     @Autowired
+    private QuestionAnswerPossibilityRepository questionAnswerPossibilityRepository;
+
+    @Autowired
     private AnswerService answerService;
+
+    @Autowired
+    private QuestionRepository questionRepository;
 
     @Autowired
     private QuestionService questionService;
@@ -61,6 +72,8 @@ public class AnswerResourceIntTest {
     private MockMvc restAnswerMockMvc;
 
     private Answer answer;
+
+    private QuestionAnswerPossibility answerPossibility;
 
     private Question question;
 
@@ -83,17 +96,22 @@ public class AnswerResourceIntTest {
      */
     public static Answer createAnswer(EntityManager em, Question question) {
         Answer answer = Answer.builder()
-                .text(DEFAULT_TEXT)
                 .question(question)
+                .answerValue(createAndwerPossibility())
                 .build();
         return answer;
+    }
+
+    public static QuestionAnswerPossibility createAndwerPossibility() {
+        return QuestionAnswerPossibility.builder().value(DEFAULT_TEXT).build();
     }
 
 
     @Before
     public void initTest() {
-        question = QuestionRessourceIntTest.createQuestion();
+        question = QuestionResourceIntTest.createQuestion();
         answer = createAnswer(em, question);
+        answerPossibility = answer.getAnswerValue();
     }
 
     @Test
@@ -115,17 +133,17 @@ public class AnswerResourceIntTest {
     public void createAnswer() throws Exception {
         int databaseSizeBeforeTest = answerRepository.findAll().size();
 
-        questionService.save(question);
+        questionAnswerPossibilityRepository.save(answerPossibility);
+        question.setAnswerPossibilities(new HashSet<>(Arrays.asList(answerPossibility)));
+        questionRepository.save(question);
 
         restAnswerMockMvc.perform(post("/questions/{questionId}/answers", question.getId())
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(answer)))
+                .content(TestUtil.convertObjectToJsonBytes(answerPossibility)))
                 .andExpect(status().isCreated());
 
         List<Answer> answerList = answerRepository.findAll();
         assertThat(answerList).hasSize(databaseSizeBeforeTest + 1);
-        Answer testAnswer = answerList.get(answerList.size() - 1);
-        assertThat(testAnswer.getText()).isEqualTo(DEFAULT_TEXT);
     }
 
     @Test
@@ -139,136 +157,16 @@ public class AnswerResourceIntTest {
     @Test
     @Transactional
     public void getAllAnswerOfQuestion() throws Exception {
-        questionService.save(question);
-        answerService.addAnswer(question.getId(), answer);
+        questionAnswerPossibilityRepository.save(answerPossibility);
+        question.setAnswerPossibilities(new HashSet<>(Arrays.asList(answerPossibility)));
+        questionRepository.save(question);
+        answerService.addAnswer(question.getId(), answerPossibility);
 
         restAnswerMockMvc.perform(get("/questions/{questionId}/answers", question.getId())
                 .contentType(TestUtil.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-                .andExpect(jsonPath("$.[*].id").value(hasItem(answer.getId().intValue())))
-                .andExpect(jsonPath("$.[*].text").value(hasItem(DEFAULT_TEXT)));
+                .andExpect(jsonPath("$.[*].answerValue.value").value(hasItem(DEFAULT_TEXT)));
     }
 
-    @Test
-    public void upateAnswerOfQuestion() throws Exception {
-        int databaseSizeBeforeTest = answerRepository.findAll().size();
-
-        questionService.save(question);
-        answerService.addAnswer(question.getId(), answer);
-
-        em.detach(answer);
-        answer.setText(UPDATED_TEXT);
-
-        restAnswerMockMvc.perform(put("/questions/{questionId}/answers/{answerId}", question.getId(), answer.getId())
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(answer)))
-                .andExpect(status().isOk());
-
-
-        List<Answer> questionList = answerRepository.findAll();
-        assertThat(questionList).hasSize(databaseSizeBeforeTest + 1);
-        Answer testAnswer = questionList.get(questionList.size() - 1);
-        assertThat(testAnswer.getText()).isEqualTo(UPDATED_TEXT);
-    }
-
-
-    @Test
-    public void upateAnswerOfQuestionOfNotExistingAnswer() throws Exception {
-        int databaseSizeBeforeTest = answerRepository.findAll().size();
-
-        questionService.save(question);
-        answerService.addAnswer(question.getId(), answer);
-
-        em.detach(answer);
-        answer.setText(UPDATED_TEXT);
-
-        restAnswerMockMvc.perform(put("/questions/{questionId}/answers/{answerId}", question.getId(), Long.MAX_VALUE)
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(answer)))
-                .andExpect(status().isNotFound());
-
-
-        List<Answer> questionList = answerRepository.findAll();
-        assertThat(questionList).hasSize(databaseSizeBeforeTest + 1);
-        Answer testAnswer = questionList.get(questionList.size() - 1);
-        assertThat(testAnswer.getText()).isEqualTo(DEFAULT_TEXT);
-    }
-
-    @Test
-    public void upateAnswerOfQuestionOfNotExistingQuestion() throws Exception {
-        int databaseSizeBeforeTest = answerRepository.findAll().size();
-        questionService.save(question);
-        answerService.addAnswer(question.getId(), answer);
-
-        em.detach(answer);
-        answer.setText(UPDATED_TEXT);
-
-        restAnswerMockMvc.perform(put("/questions/{questionId}/answers/{answerId}", Long.MAX_VALUE, answer.getId())
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(answer)))
-                .andExpect(status().isNotFound());
-
-        List<Answer> questionList = answerRepository.findAll();
-        assertThat(questionList).hasSize(databaseSizeBeforeTest + 1);
-        Answer testAnswer = questionList.get(questionList.size() - 1);
-        assertThat(testAnswer.getText()).isEqualTo(DEFAULT_TEXT);
-    }
-
-    @Test
-    @Transactional
-    public void deleteAnswer() throws Exception {
-        // Initialize the database
-        questionService.save(question);
-        answerService.addAnswer(question.getId(), answer);
-
-        int databaseSizeBeforeDelete = answerRepository.findAll().size();
-
-        // Get the question
-        restAnswerMockMvc.perform(delete("/questions/{questionId}/answers/{answerId}", question.getId(), answer.getId())
-                .accept(TestUtil.APPLICATION_JSON_UTF8))
-                .andExpect(status().isOk());
-
-        // Validate the database is empty
-        List<Answer> answerTest = answerRepository.findAll();
-        assertThat(answerTest).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void deleteAnswerOfNotFounQuestion() throws Exception {
-        // Initialize the database
-        questionService.save(question);
-        answerService.addAnswer(question.getId(), answer);
-
-        int databaseSizeBeforeDelete = answerRepository.findAll().size();
-
-        // Get the question
-        restAnswerMockMvc.perform(delete("/questions/{questionId}/answers/{answerId}", Long.MAX_VALUE, answer.getId())
-                .accept(TestUtil.APPLICATION_JSON_UTF8))
-                .andExpect(status().isNotFound());
-
-        // Validate the database is empty
-        List<Answer> answerTest = answerRepository.findAll();
-        assertThat(answerTest).hasSize(databaseSizeBeforeDelete);
-    }
-
-    @Test
-    @Transactional
-    public void deleteAnswerOfNotFounAnswer() throws Exception {
-        // Initialize the database
-        questionService.save(question);
-        answerService.addAnswer(question.getId(), answer);
-
-        int databaseSizeBeforeDelete = answerRepository.findAll().size();
-
-        // Get the question
-        restAnswerMockMvc.perform(delete("/questions/{questionId}/answers/{answerId}", question.getId(), Long.MAX_VALUE)
-                .accept(TestUtil.APPLICATION_JSON_UTF8))
-                .andExpect(status().isNotFound());
-
-        // Validate the database is empty
-        List<Answer> answerTest = answerRepository.findAll();
-        assertThat(answerTest).hasSize(databaseSizeBeforeDelete);
-    }
 }

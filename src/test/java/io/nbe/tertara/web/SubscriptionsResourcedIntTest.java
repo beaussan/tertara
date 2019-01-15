@@ -151,7 +151,7 @@ public class SubscriptionsResourcedIntTest {
         subscription.setId(1L);
 
         // An entity with an existing ID cannot be created, so this API call must fail
-        restsubscriptionMockMvc.perform(post("/questions")
+        restsubscriptionMockMvc.perform(post("/subscription")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(subscription)))
                 .andExpect(status().isBadRequest());
